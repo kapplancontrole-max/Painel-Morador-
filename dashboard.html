@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Consumo - AbrangeBox</title>
+    <style>
+        :root { --bg: #f1f5f9; --card: #ffffff; --primary: #10b981; --text: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); padding: 40px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 900px; position: relative; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card h3 { font-size: 14px; color: #64748b; margin-bottom: 10px; }
+        .card p { font-size: 24px; font-weight: 700; color: var(--text); }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { background-color: #f8fafc; color: #64748b; font-size: 14px; }
+        
+        .btn-logout {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover { background-color: #dc2626; }
+
+        @media (max-width: 600px) {
+            .btn-logout { position: static; display: block; margin: 10px auto 20px auto; width: fit-content; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="logo.png" alt="Logo AbrangeBox" style="max-width: 550px; height: auto;">
+    </div>
+    
+    <button class="btn-logout" onclick="efetuarLogout()">Sair do Painel</button>
+    
+    <h1>Dashboard da Vaga: <span id="vaga-id">Carregando...</span></h1>
+    
+    <div class="stats-grid">
+        <div class="card"><h3>Consumo Atual Acumulado</h3><p id="total-kwh">0.00 kWh</p></div>
+        <div class="card"><h3>Total de Registros</h3><p id="total-regs">0</p></div>
+    </div>
+
+    <div class="card">
+        <h3>Histórico de Leituras</h3>
+        <table id="tabela-consumo">
+            <thead>
+                <tr><th>Data</th><th>Consumo na Leitura (kWh)</th></tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        carregarDadosSeguros();
+    };
+
+    async function carregarDadosSeguros() {
+        const MINHA_VAGA = sessionStorage.getItem('vagaLogada');
+        const MINHA_SENHA = sessionStorage.getItem('senhaLogada');
+
+        if (!MINHA_VAGA || !MINHA_SENHA) {
+            alert("Acesso negado! Por favor, faça o login.");
+            window.location.href = "index.html";
+            return;
+        }
+
+        document.getElementById('vaga-id').innerText = MINHA_VAGA.toUpperCase();
+
+        const URL_GAS = 'https://script.google.com/macros/s/AKfycbzokzR3uzo9PYgTFbRcXWp1X9tVUX0uFKDDgfBvKj_I1Ip7_omTZ1pJFWVzXcqROlcbLg/exec';
+
+        try {
+            const resposta = await fetch(URL_GAS, {
+                method: 'POST',
+                body: JSON.stringify({
+                    vaga: MINHA_VAGA,
+                    senha: MINHA_SENHA,
+                    acao: "buscar_dados"
+                })
+            });
+
+            const resultado = await resposta.json();
+
+            if (resultado.status === "sucesso") {
+                renderizarLista(resultado.dados);
+            } else {
+                alert(resultado.mensagem || "Erro de autenticação.");
+                efetuarLogout();
+            }
+        } catch (error) {
+            console.error(error);
+            document.getElementById('corpo-tabela').innerHTML = "<tr><td colspan='2' style='color: #ef4444; text-align: center; font-weight: 600;'>Erro ao carregar dados do servidor.</td></tr>";
+        }
+    }
+
+    function renderizarLista(historico) {
+        document.getElementById('total-regs').innerText = historico.length;
+        const corpoTabela = document.getElementById('corpo-tabela');
+        corpoTabela.innerHTML = ""; 
+
+        if (historico.length === 0) {
+            document.getElementById('total-kwh').innerText = "0.00 kWh";
+            corpoTabela.innerHTML = "<tr><td colspan='2' style='text-align: center; color: #64748b;'>Nenhum registro encontrado para esta vaga.</td></tr>";
+            return;
+        }
+
+        // CORREÇÃO AQUI: Pega o valor do ÚLTIMO elemento do array (o mais recente da planilha)
+        const ultimoRegistro = historico[historico.length - 1];
+        document.getElementById('total-kwh').innerText = ultimoRegistro.consumo.toFixed(2) + " kWh";
+
+        // OPTATIVO: Inverte o histórico para mostrar o mais recente no topo da tabela do usuário
+        const historicoInvertido = [...historico].reverse();
+
+        historicoInvertido.forEach(item => {
+            const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
+            corpoTabela.innerHTML += `<tr><td>${dataFormatada}</td><td>${item.consumo.toFixed(2)} kWh</td></tr>`;
+        });
+    }
+
+    function efetuarLogout() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
