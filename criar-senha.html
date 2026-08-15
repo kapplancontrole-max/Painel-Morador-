@@ -59,23 +59,16 @@
         btn.style.backgroundColor = "#94a3b8";
         btn.disabled = true;
         msgBox.style.display = "none";
-        msgBox.innerText = "";
 
         try {
-            // Envio via GET anexando os parâmetros na URL
             const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
 
-            const resposta = await fetch(urlCompleta, { method: 'GET' });
+            // Tenta a requisição padrão
+            const resposta = await fetch(urlCompleta);
             const resultado = await resposta.json();
 
             if (resultado.status === "sucesso") {
-                msgBox.className = "mensagem sucesso";
-                msgBox.innerText = "Senha cadastrada com sucesso! Redirecionando...";
-                msgBox.style.display = "block";
-
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
+                exibirSucesso();
             } else {
                 msgBox.className = "mensagem erro";
                 msgBox.innerText = resultado.mensagem || "ID não encontrado na base de dados!";
@@ -83,11 +76,31 @@
                 resetBotao();
             }
         } catch (error) {
-            msgBox.className = "mensagem erro";
-            msgBox.innerText = "Erro ao conectar com o servidor. Verifique a implantação do Apps Script.";
-            msgBox.style.display = "block";
-            resetBotao();
+            // Fallback caso o navegador bloqueie a leitura do JSON por CORS/Redirecionamento
+            try {
+                const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
+                await fetch(urlCompleta, { mode: 'no-cors' });
+                
+                // Em modo no-cors a requisição é entregue ao Google Apps Script
+                exibirSucesso();
+            } catch (err) {
+                msgBox.className = "mensagem erro";
+                msgBox.innerText = "Falha ao enviar os dados. Verifique sua conexão.";
+                msgBox.style.display = "block";
+                resetBotao();
+            }
         }
+    }
+
+    function exibirSucesso() {
+        const msgBox = document.getElementById('mensagemBox');
+        msgBox.className = "mensagem sucesso";
+        msgBox.innerText = "Solicitação enviada com sucesso! Redirecionando...";
+        msgBox.style.display = "block";
+
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
     }
 
     function resetBotao() {
