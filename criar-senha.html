@@ -62,18 +62,10 @@
         msgBox.innerText = "";
 
         try {
-            // Alterado para URLSearchParams para evitar problemas de CORS no Google Apps Script
-            const params = new URLSearchParams();
-            params.append("vaga", txtVaga);
-            params.append("senha", txtSenha);
-            params.append("acao", "cadastrar");
+            // Envio via GET anexando os parâmetros na URL
+            const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
 
-            const resposta = await fetch(urlGAS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            });
-            
+            const resposta = await fetch(urlCompleta, { method: 'GET' });
             const resultado = await resposta.json();
 
             if (resultado.status === "sucesso") {
@@ -92,7 +84,7 @@
             }
         } catch (error) {
             msgBox.className = "mensagem erro";
-            msgBox.innerText = "Erro de conexão com o servidor ou parâmetro incorreto.";
+            msgBox.innerText = "Erro ao conectar com o servidor. Verifique a implantação do Apps Script.";
             msgBox.style.display = "block";
             resetBotao();
         }
