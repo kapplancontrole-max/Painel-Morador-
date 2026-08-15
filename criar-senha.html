@@ -1,113 +1,99 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Primeiro Acesso - AbrangeBox</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; display: flex; height: 100vh; justify-content: center; align-items: center; }
-        .login-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 380px; border: 1px solid #e2e8f0; }
-        .logo-wrapper { text-align: center; margin-bottom: 25px; }
-        .logo-wrapper img { width: 100%; max-width: 180px; height: auto; }
-        h2 { margin: 0 0 10px 0; font-size: 20px; color: #0f172a; text-align: center; }
-        p { font-size: 13px; color: #64748b; text-align: center; margin: 0 0 20px 0; }
-        label { font-weight: 600; display: block; margin-top: 15px; color: #1e293b; font-size: 14px; }
-        input { width: 100%; padding: 12px; margin-top: 6px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background-color: #f8fafc; }
-        button { background-color: #10b981; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-size: 16px; font-weight: bold; }
-        .btn-secundario { background-color: transparent; color: #64748b; border: 1px solid #cbd5e1; margin-top: 10px; }
-        .mensagem { font-size: 13px; text-align: center; margin-top: 15px; display: none; font-weight: 600; }
-        .erro { color: #ef4444; }
-        .sucesso { color: #10b981; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastrar / Alterar Senha</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+    button:disabled { background-color: #6c757d; cursor: not-allowed; }
+    #mensagem { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; text-align: center; }
+    .sucesso { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .erro { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
 </head>
 <body>
 
-<div class="login-card">
-    <div class="logo-wrapper">
-        <img src="logo.png" alt="Logo AbrangeBox">
+  <h2>Cadastrar Senha</h2>
+  
+  <form id="formCadastro">
+    <div class="form-group">
+      <label for="vaga">Nº da Vaga / Apartamento:</label>
+      <input type="text" id="vaga" placeholder="Ex: 101" required>
     </div>
 
-    <h2>Primeiro Acesso</h2>
-    <p>Cadastre uma senha para o seu ID pré-registrado.</p>
-    
-    <form id="formCadastro" onsubmit="cadastrarSenha(event)">
-        <label>ID de Acesso da Vaga:</label>
-        <input type="text" id="id_hardware" placeholder="Ex: ap01 ou 01" required>
-        
-        <label>Crie sua Senha:</label>
-        <input type="password" id="nova_senha" placeholder="Digite a nova senha" required>
-        
-        <div id="mensagemBox" class="mensagem"></div>
+    <div class="form-group">
+      <label for="senha">Nova Senha:</label>
+      <input type="password" id="senha" placeholder="Digite sua senha" required>
+    </div>
 
-        <button type="submit" id="btnSalvar">Cadastrar Senha</button>
-        <button type="button" class="btn-secundario" onclick="window.location.href='index.html'">Voltar ao Login</button>
-    </form>
-</div>
+    <button type="submit" id="btnSalvar">Salvar Senha</button>
+  </form>
 
-<script>
-    async function cadastrarSenha(event) {
-        event.preventDefault(); 
-        
-        const txtVaga = document.getElementById('id_hardware').value.trim();
-        const txtSenha = document.getElementById('nova_senha').value.trim();
-        const btn = document.getElementById('btnSalvar');
-        const msgBox = document.getElementById('mensagemBox');
+  <div id="mensagem"></div>
 
-        const urlGAS = "https://script.google.com/macros/s/AKfycbw4WG8kjvhsYHwn0lKd59q8kMonyKltpFw5AmvCgWC2OAFvST7RKq2M9OkycFdw2LmP/exec";
+  <script>
+    // ⚠️ SUBSTITUA PELA SUA URL DO WEB APP PUBLICADO
+    const API_URL = "https://script.google.com/macros/s/AKfycbw4WG8kjvhsYHwn0lKd59q8kMonyKltpFw5AmvCgWC2OAFvST7RKq2M9OkycFdw2LmP/exec";
 
-        btn.innerText = "Validando ID...";
-        btn.style.backgroundColor = "#94a3b8";
-        btn.disabled = true;
-        msgBox.style.display = "none";
+    const form = document.getElementById("formCadastro");
+    const btnSalvar = document.getElementById("btnSalvar");
+    const divMensagem = document.getElementById("mensagem");
 
-        try {
-            const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
 
-            const resposta = await fetch(urlCompleta);
-            const resultado = await resposta.json();
+      const vaga = document.getElementById("vaga").value.trim();
+      const senha = document.getElementById("senha").value.trim();
 
-            if (resultado.status === "sucesso") {
-                exibirSucesso();
-            } else {
-                msgBox.className = "mensagem erro";
-                msgBox.innerText = resultado.mensagem || "ID não encontrado na base de dados!";
-                msgBox.style.display = "block";
-                resetBotao();
-            }
-        } catch (error) {
-            try {
-                const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
-                await fetch(urlCompleta, { mode: 'no-cors' });
-                
-                exibirSucesso();
-            } catch (err) {
-                msgBox.className = "mensagem erro";
-                msgBox.innerText = "Falha ao enviar os dados. Verifique sua conexão.";
-                msgBox.style.display = "block";
-                resetBotao();
-            }
+      if (!vaga || !senha) {
+        exibirMensagem("Preencha todos os campos!", "erro");
+        return;
+      }
+
+      btnSalvar.disabled = true;
+      btnSalvar.innerText = "Gravando na planilha...";
+      divMensagem.style.display = "none";
+
+      try {
+        // Envio via POST tratando o protocolo do Google Apps Script
+        const resposta = await fetch(API_URL, {
+          method: "POST",
+          // IMPORTANTE: Use text/plain para impedir o Google de descartar o body JSON
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            acao: "cadastrar",
+            vaga: vaga,
+            senha: senha
+          })
+        });
+
+        const dados = await resposta.json();
+
+        if (dados.status === "sucesso") {
+          exibirMensagem("✅ Senha cadastrada com sucesso! Agora você já pode fazer login.", "sucesso");
+          form.reset();
+        } else {
+          exibirMensagem("❌ Erro: " + dados.mensagem, "erro");
         }
+      } catch (erro) {
+        console.error("Erro ao conectar com a API:", erro);
+        exibirMensagem("❌ Falha na conexão com o servidor. Verifique a URL do script.", "erro");
+      } finally {
+        btnSalvar.disabled = false;
+        btnSalvar.innerText = "Salvar Senha";
+      }
+    });
+
+    function exibirMensagem(texto, tipo) {
+      divMensagem.className = tipo;
+      divMensagem.innerText = texto;
+      divMensagem.style.display = "block";
     }
-
-    function exibirSucesso() {
-        const msgBox = document.getElementById('mensagemBox');
-        msgBox.className = "mensagem sucesso";
-        msgBox.innerText = "Senha cadastrada com sucesso! Redirecionando...";
-        msgBox.style.display = "block";
-
-        setTimeout(() => {
-            // Usa caminho relativo garantido
-            window.location.href = "./index.html";
-        }, 2000);
-    }
-
-    function resetBotao() {
-        const btn = document.getElementById('btnSalvar');
-        btn.innerText = "Cadastrar Senha";
-        btn.style.backgroundColor = "#10b981";
-        btn.disabled = false;
-    }
-</script>
-
+  </script>
 </body>
 </html>
