@@ -40,7 +40,7 @@
         <div id="mensagemBox" class="mensagem"></div>
 
         <button type="submit" id="btnSalvar">Cadastrar Senha</button>
-        <button type="button" class="btn-secundario" onclick="window.location.href='login.html'">Voltar ao Login</button>
+        <button type="button" class="btn-secundario" onclick="window.location.href='index.html'">Voltar ao Login</button>
     </form>
 </div>
 
@@ -63,7 +63,6 @@
         try {
             const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
 
-            // Tenta a requisição padrão
             const resposta = await fetch(urlCompleta);
             const resultado = await resposta.json();
 
@@ -76,12 +75,10 @@
                 resetBotao();
             }
         } catch (error) {
-            // Fallback caso o navegador bloqueie a leitura do JSON por CORS/Redirecionamento
             try {
                 const urlCompleta = `${urlGAS}?acao=cadastrar&vaga=${encodeURIComponent(txtVaga)}&senha=${encodeURIComponent(txtSenha)}`;
                 await fetch(urlCompleta, { mode: 'no-cors' });
                 
-                // Em modo no-cors a requisição é entregue ao Google Apps Script
                 exibirSucesso();
             } catch (err) {
                 msgBox.className = "mensagem erro";
@@ -95,11 +92,12 @@
     function exibirSucesso() {
         const msgBox = document.getElementById('mensagemBox');
         msgBox.className = "mensagem sucesso";
-        msgBox.innerText = "Solicitação enviada com sucesso! Redirecionando...";
+        msgBox.innerText = "Senha cadastrada com sucesso! Redirecionando...";
         msgBox.style.display = "block";
 
         setTimeout(() => {
-            window.location.href = "index.html";
+            // Usa caminho relativo garantido
+            window.location.href = "./index.html";
         }, 2000);
     }
 
