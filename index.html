@@ -94,12 +94,15 @@
         btn.disabled = true;
         msgBox.style.display = "none";
 
+        const formData = new URLSearchParams();
+        formData.append('acao', 'verificar_login');
+        formData.append('vaga', txtVaga);
+        formData.append('senha', txtSenha);
+
         try {
             const resposta = await fetch(urlGAS, {
                 method: 'POST',
-                redirect: 'follow',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ vaga: txtVaga, senha: txtSenha, acao: "verificar_login" })
+                body: formData
             });
             
             const resultado = await resposta.json();
@@ -142,12 +145,15 @@
         btn.disabled = true;
         msgBox.style.display = "none";
 
+        const formData = new URLSearchParams();
+        formData.append('acao', 'criar_senha');
+        formData.append('vaga', txtVaga);
+        formData.append('novaSenha', txtSenha);
+
         try {
             const resposta = await fetch(urlGAS, {
                 method: 'POST',
-                redirect: 'follow',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ vaga: txtVaga, novaSenha: txtSenha, acao: "criar_senha" })
+                body: formData
             });
 
             const resultado = await resposta.json();
