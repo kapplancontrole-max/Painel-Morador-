@@ -46,6 +46,7 @@
         <label>Crie sua Senha:</label>
         <input type="password" id="nova_senha" placeholder="Digite a nova senha" required>
         
+        <!-- ELEMENTO CORRIGIDO: SEM DISPLAY BLOCK E SEM TEXTO FIXO -->
         <div id="mensagemBox" class="mensagem"></div>
 
         <button type="submit" id="btnSalvar">Cadastrar Senha</button>
@@ -68,6 +69,7 @@
         btn.style.backgroundColor = "#94a3b8";
         btn.disabled = true;
         msgBox.style.display = "none";
+        msgBox.innerText = ""; // Limpa qualquer mensagem residual
 
         try {
             const resposta = await fetch(urlGAS, {
