@@ -16,6 +16,19 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
         th { background-color: #f8fafc; color: #64748b; font-size: 14px; }
         
+        /* Ajuste responsivo da Logo */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .logo-img {
+            width: 100%;
+            max-width: 550px; /* Limite máximo no desktop */
+            height: auto;     /* Mantém a proporção correta */
+            display: inline-block;
+        }
+
         .btn-logout {
             position: absolute;
             top: 0;
@@ -33,6 +46,7 @@
         .btn-logout:hover { background-color: #dc2626; }
 
         @media (max-width: 600px) {
+            body { padding: 20px 15px; } /* Ajuste de padding para telas pequenas */
             .btn-logout { position: static; display: block; margin: 10px auto 20px auto; width: fit-content; }
         }
     </style>
@@ -40,8 +54,8 @@
 <body>
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <img src="logo.png" alt="Logo AbrangeBox" style="max-width: 550px; height: auto;">
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo AbrangeBox" class="logo-img">
     </div>
     
     <button class="btn-logout" onclick="efetuarLogout()">Sair do Painel</button>
@@ -118,11 +132,11 @@
             return;
         }
 
-        // CORREÇÃO AQUI: Pega o valor do ÚLTIMO elemento do array (o mais recente da planilha)
+        // Pega o valor do ÚLTIMO elemento do array (o mais recente da planilha)
         const ultimoRegistro = historico[historico.length - 1];
         document.getElementById('total-kwh').innerText = ultimoRegistro.consumo.toFixed(2) + " kWh";
 
-        // OPTATIVO: Inverte o histórico para mostrar o mais recente no topo da tabela do usuário
+        // Inverte o histórico para mostrar o mais recente no topo da tabela do usuário
         const historicoInvertido = [...historico].reverse();
 
         historicoInvertido.forEach(item => {
