@@ -118,16 +118,16 @@
             return;
         }
 
-        // Pega o valor do ÚLTIMO elemento do array (o mais recente)
+        // CORREÇÃO AQUI: Pega o valor do ÚLTIMO elemento do array (o mais recente da planilha)
         const ultimoRegistro = historico[historico.length - 1];
-        document.getElementById('total-kwh').innerText = Number(ultimoRegistro.consumo).toFixed(2) + " kWh";
+        document.getElementById('total-kwh').innerText = ultimoRegistro.consumo.toFixed(2) + " kWh";
 
-        // Inverte o histórico para mostrar o mais recente no topo da tabela
+        // OPTATIVO: Inverte o histórico para mostrar o mais recente no topo da tabela do usuário
         const historicoInvertido = [...historico].reverse();
 
         historicoInvertido.forEach(item => {
             const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
-            corpoTabela.innerHTML += `<tr><td>${dataFormatada}</td><td>${Number(item.consumo).toFixed(2)} kWh</td></tr>`;
+            corpoTabela.innerHTML += `<tr><td>${dataFormatada}</td><td>${item.consumo.toFixed(2)} kWh</td></tr>`;
         });
     }
 
@@ -136,6 +136,5 @@
         window.location.href = "index.html";
     }
 </script>
-
 </body>
 </html>
